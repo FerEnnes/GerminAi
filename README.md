@@ -218,7 +218,7 @@ Estudante de Análise e Desenvolvimento de Sistemas e entusiasta da agricultura 
 
 ## Links importantes: 
 
-- Chatbot do GerminAi:
+- Chatbot do GerminAi:https://germinai.streamlit.app/
 - Link do notebook no Colab: https://colab.research.google.com/drive/1jw3d4pvQktIBZ4VzM-gKoCJKn8NUOKxm?usp=sharing
 
 > “Não basta plantar árvores. É preciso plantar ideias.” 🌱
