@@ -1,0 +1,6 @@
+streamlit
+google-generativeai
+google-auth-oauthlib
+google-api-python-client
+requests
+beautifulsoup4

@@ -1,0 +1,8 @@
+# Ignorar o arquivo de chaves do Streamlit
+.streamlit/secrets.toml
+
+# Ignorar arquivos e pastas de ambiente virtual
+venv/
+.env
+__pycache__/
+*.pyc
