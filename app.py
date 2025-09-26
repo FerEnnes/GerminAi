@@ -3,6 +3,13 @@ from germinai_backend import gerar_resposta_final, geolocalizar_diagnostico_comp
 
 st.set_page_config(page_title="GerminAI", page_icon="🌿", layout="centered")
 
+# === NOVO: botão para limpar cache e reiniciar ===
+with st.sidebar:
+    st.markdown("### ⚙️ Utilitários")
+    if st.button("🔄 Limpar cache e reiniciar"):
+        st.cache_data.clear()   # limpa caches do backend (ex.: Nominatim)
+        st.rerun()
+
 # Cabeçalho
 st.markdown("# 🌿 GerminAI")
 st.markdown("Seu guia para iniciar uma agricultura sintrópica segundo Ernst Götsch. 🌀")
@@ -32,6 +39,12 @@ if submitted:
     with st.spinner("🔎 Analisando dados e cultivando sugestões..."):
         try:
             diagnostico_texto, latitude, longitude = geolocalizar_diagnostico_completo(local_input)
+
+            # === NOVO: se falhar geolocalização, mostra mensagem e para execução
+            if latitude is None or longitude is None:
+                st.error(diagnostico_texto)  # já traz o motivo (ex.: 429, resposta não-JSON, etc.)
+                st.stop()
+
             st.success("📍 Diagnóstico do Local")
             st.markdown(diagnostico_texto)
 
@@ -43,4 +56,5 @@ if submitted:
             st.markdown(resposta)
 
         except Exception as e:
+            # Mensagem amigável no front
             st.error(f"Erro ao gerar resposta: {e}")
