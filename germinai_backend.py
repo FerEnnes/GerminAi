@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 import streamlit as st
 
-
 try:
     import google.generativeai as genai
     _API_KEY = st.secrets.get("gemini", {}).get("api_key")
@@ -22,15 +21,10 @@ GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 
 
 def _http_get_json(url: str, params: dict) -> dict:
-    """
-    Faz GET e tenta parsear JSON com fallback a erros legíveis.
-    Lança Exception com mensagem curta e útil (sem HTMLzão).
-    """
     headers = {
         "User-Agent": "GerminAI/1.0 (contato: saas_agrolight@ifc.edu.br)",
         "Accept": "application/json",
     }
-
 
     for attempt in range(3):
         try:
@@ -46,12 +40,15 @@ def _http_get_json(url: str, params: dict) -> dict:
                 return r.json()
             except ValueError:
                 snippet = (r.text or "")[:200]
-                raise Exception(f"Resposta não-JSON do serviço de geocodificação (início): {snippet!r}")
-
+                raise Exception(
+                    f"Resposta não-JSON do serviço de geocodificação (início): {snippet!r}"
+                )
 
         if r.status_code == 429:
             if attempt == 2:
-                raise Exception("Serviço de geocodificação limitou requisições (429). Tente novamente em instantes.")
+                raise Exception(
+                    "Serviço de geocodificação limitou requisições (429). Tente novamente em instantes."
+                )
             time.sleep(1.2 * (attempt + 1))
             continue
 
@@ -65,12 +62,9 @@ def _http_get_json(url: str, params: dict) -> dict:
 
     raise Exception("Erro inesperado ao consultar serviço de geocodificação.")
 
+
 @st.cache_data(ttl=24 * 3600, show_spinner=False)
 def _search_place(text: str) -> dict:
-    """
-    Usa a Geocoding API do Open-Meteo.
-    Aceita nome de cidade OU CEP no parâmetro 'name'.
-    """
     return _http_get_json(
         GEOCODING_URL,
         {
@@ -85,11 +79,9 @@ def _search_place(text: str) -> dict:
 _COORD_RE = re.compile(r"^\s*(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$")
 
 
-def geolocalizar_diagnostico_completo(local_input: str) -> Tuple[str, Optional[float], Optional[float]]:
-    """
-    Retorna (diagnóstico_texto, lat, lon).
-    Em caso de falha, lat/lon = None e texto com o motivo.
-    """
+def geolocalizar_diagnostico_completo(
+    local_input: str,
+) -> Tuple[str, Optional[float], Optional[float]]:
     local_input = (local_input or "").strip()
     if not local_input:
         return "❌ Informe uma cidade/UF, CEP ou coordenadas.", None, None
@@ -100,7 +92,6 @@ def geolocalizar_diagnostico_completo(local_input: str) -> Tuple[str, Optional[f
     pais = "desconhecido"
 
     try:
-
         m = _COORD_RE.match(local_input)
         if m:
             lat = float(m.group(1))
@@ -109,7 +100,6 @@ def geolocalizar_diagnostico_completo(local_input: str) -> Tuple[str, Optional[f
             estado = ""
             pais = "desconhecido"
         else:
-            # 2) Busca por texto (cidade ou CEP) na geocoding API
             data = _search_place(local_input)
             results = data.get("results") or []
             if not results:
@@ -120,7 +110,6 @@ def geolocalizar_diagnostico_completo(local_input: str) -> Tuple[str, Optional[f
             lon = float(r["longitude"])
             cidade = r.get("name") or "desconhecida"
             estado = r.get("admin1") or ""
-            # country_code é tipo "BR"; country é o nome completo
             pais = r.get("country") or r.get("country_code", "desconhecido")
 
         bioma = "Bioma estimado"
