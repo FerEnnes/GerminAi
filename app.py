@@ -42,9 +42,7 @@ with st.form("formulario"):
 if submitted:
     with st.spinner("🔎 Analisando dados e cultivando sugestões..."):
         try:
-            diagnostico_texto, latitude, longitude = geolocalizar_diagnostico_completo(
-                local_input
-            )
+            diagnostico_texto, latitude, longitude = geolocalizar_diagnostico_completo(local_input)
 
             if latitude is None or longitude is None:
                 st.error(diagnostico_texto)
@@ -62,6 +60,38 @@ if submitted:
             st.divider()
             st.markdown("### 🌳 Plano Agroflorestal Personalizado")
             st.markdown(resposta)
+
+            tipos_especies_str = ", ".join(tipos_especies) if tipos_especies else "Não informado"
+
+            plano_txt = f"""Plano Agroflorestal - GerminAI
+
+Local informado: {local_input}
+Tamanho da área: {tamanho_area}
+Tipo de relevo: {relevo}
+Incidência de luz: {sombra}
+Objetivo da agrofloresta: {objetivo}
+Horas semanais disponíveis: {dedicacao}
+Tipos de espécies desejadas: {tipos_especies_str}
+Preferência por espécies: {preferencia_especies}
+Já existe algo plantado: {existe_plantio or "Não informado"}
+
+------------------------------
+Diagnóstico do local
+------------------------------
+{diagnostico_texto}
+
+------------------------------
+Plano agroflorestal personalizado
+------------------------------
+{resposta}
+"""
+
+            st.download_button(
+                label="📥 Baixar plano em .txt",
+                data=plano_txt,
+                file_name="plano_agroflorestal_germinai.txt",
+                mime="text/plain",
+            )
 
         except Exception as e:
             st.error(f"Erro ao gerar resposta: {e}")
